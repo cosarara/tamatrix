@@ -82,7 +82,7 @@ void udpSendIrstartAck(int type) {
 	sendto(sock, &packet, sizeof(packet), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
 }
 
-void udpSendDisplay(Display *d) {
+void udpSendDisplay(Display *d, char* name) {
 	int x, y;
 	int chg=0;
 	//Compare first, don't send udp packet if no change has occurred.
@@ -103,6 +103,7 @@ void udpSendDisplay(Display *d) {
 		}
 	}
 	packet.d.disp.icons=htons(d->icons);
+	memcpy(packet.d.disp.name, name, 32);
 	sendto(sock, &packet, sizeof(packet), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
 }
 

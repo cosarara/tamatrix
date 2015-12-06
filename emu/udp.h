@@ -4,7 +4,7 @@
 #include "lcd.h"
 
 void udpInit(char *hostname);
-void udpSendDisplay(Display *d);
+void udpSendDisplay(Display *d, char *name);
 void udpSendIr(char *data, int len, int startPulseLen);
 void udpTick();
 void udpSendIrstartReq(int type);

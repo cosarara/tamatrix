@@ -13,6 +13,7 @@
 typedef struct __attribute__((packed)) {
 	uint8_t pixel[32][48];
 	uint16_t icons;
+	uint8_t name[32];
 } TamaUdpDisplay;
 
 typedef struct __attribute__((packed)) {
@@ -24,8 +25,6 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
 	uint8_t type;
 } TamaIrStartData;
-
-
 
 typedef struct __attribute__((packed)) {
 	uint8_t type;

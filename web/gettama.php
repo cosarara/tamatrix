@@ -23,6 +23,7 @@ if ($hdr["currseq"]<=$lastseq) {
 $n=0;
 for ($i=0; $i<$hdr["notama"]; $i++) {
 	$off=$i*(32*48+6)+8;
+	$nameoff=$i*32+(32*48+6)*128+8;
 	$shdr=unpack("Llastseq", shmop_read($shm, $off, 4));
 //	var_dump($shdr);
 	if ($shdr["lastseq"]>$lastseq) {
@@ -34,6 +35,14 @@ for ($i=0; $i<$hdr["notama"]; $i++) {
 		$ret->tama[$n]->id=$i;
 		$ret->tama[$n]->pixels=$st;
 		$ret->tama[$n]->icons=unpack("S", shmop_read($shm, $off+12+32*48, 2));
+		$data = unpack("c*", shmop_read($shm, $nameoff, 32));
+		$name = "";
+		for ($x=0; $x<32; $x++) {
+			$char = $data[$x];
+			if ($char === 0) break;
+			$name .= ord($char);
+		}
+		$ret->tama[$n]->name=$name;
 		$n++;
 	}
 }

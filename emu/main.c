@@ -59,6 +59,7 @@ int main(int argc, char **argv) {
 	int aiEnabled=1;
 	int t=0;
 	char *eeprom="tama.eep";
+	char name[32]="";
 	char *host="127.0.0.1";
 	char *romdir="rom";
 	struct timespec tstart, tend;
@@ -76,6 +77,9 @@ int main(int argc, char **argv) {
 		} else if (strcmp(argv[i],"-r")==0 && argc>i+1) {
 			i++;
 			romdir=argv[i];
+		} else if (strcmp(argv[i],"-m")==0 && argc>i+1) {
+			i++;
+			strncpy(name, argv[i], sizeof(name));
 		} else if (strcmp(argv[i], "-n")==0) {
 			aiEnabled=0;
 		} else {
@@ -84,6 +88,10 @@ int main(int argc, char **argv) {
 			break;
 		}
 	}
+	if (name[0] == '\0') {
+		strncpy(name, eeprom, sizeof(name));
+	}
+	name[sizeof(name)-1] = '\0';
 
 	if (err) {
 		printf("Usage: %s [options]\n", argv[0]);
@@ -112,7 +120,7 @@ int main(int argc, char **argv) {
 		}
 		if (!speedup || (t&15)==0) {
 			lcdShow(&display);
-			udpSendDisplay(&display);
+			udpSendDisplay(&display, name);
 			tamaDumpHw(tama->cpu);
 			benevolentAiDump();
 		}

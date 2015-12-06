@@ -27,6 +27,7 @@ typedef struct __attribute((packed)) {
 	uint32_t currSeq;
 	uint32_t noTamas;
 	TamaDisp tama[MAXCLIENT];
+	char name[32*MAXCLIENT];
 } ShmData;
 
 typedef struct {
@@ -49,6 +50,7 @@ void handleTamaPacket(int id, TamaUdpData *d, int len) {
 			}
 		}
 		shm->tama[id].icons=d->d.disp.icons;
+		memcpy((void*)&shm->name[id*32], d->d.disp.name, 32);
 	} else if (d->type==TAMAUDP_IRSTART) {
 		//Find a tama to connect this one to.
 		y=100;
@@ -71,10 +73,15 @@ void handleTamaPacket(int id, TamaUdpData *d, int len) {
 		printf("IR data from %d to %d len %d spulse %d:", id, y, ntohs(d->d.ir.dataLen), ntohs(d->d.ir.startPulseLen));
 		for (x=0; x<ntohs(d->d.ir.dataLen); x++) printf("%02X ", d->d.ir.data[x]);
 		printf("\n");
+	//} else if (d->type==TAMAUDP_NAME) {
+	//	printf("Tama %s says hello.\n", d->d.name.name);
+	//	memcpy((void*)&shm->name[id*32], d->d.name.name, 32);
 	} else if (d->type==TAMAUDP_BYE) {
 		printf("Tama %d says bye. Freeing slot.\n", id);
 		shm->tama[id].lastSeq=-1;
 		return; //to stop rest of the code fiddling with lastSeq
+	} else {
+		printf("Weird message with type %d\n", d->type);
 	}
 	p=shm->currSeq+1;
 	shm->tama[id].lastSeq=p;
@@ -90,6 +97,7 @@ int main(int argc, char** argv) {
 	struct sockaddr_in claddr, serveraddr;
 	srand(time(NULL));
 	
+	printf("%d\n", sizeof(ShmData));
 	shmfd=shmget(7531, sizeof(ShmData), IPC_CREAT|0666);
 	if (shmfd<0) {
 		perror("creating shm");
@@ -147,6 +155,7 @@ int main(int argc, char** argv) {
 				//Okay, init tama struct.
 				memcpy(&client[i].addr, &claddr, al);
 				shm->tama[i].lastSeq=0;
+				shm->name[32*i] = '\0';
 				t=i;
 				printf("New connection id=%d\n", t);
 			}
